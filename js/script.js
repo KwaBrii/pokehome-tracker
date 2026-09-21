@@ -4,15 +4,20 @@ function getPokemon(id) {
         .then(data => {
             const container = document.getElementById("pokemon-container");
 
-            container.textContent = data.name;
+            const card = document.createElement("div");
+            container.appendChild(card);
+
+            const name = document.createElement("h2");
+            name.textContent = data.name;
+            card.appendChild(name);
 
             const number = document.createElement("p");
             number.textContent = `#${data.id}`;
-            container.appendChild(number);
+            card.appendChild(number);
 
             const image = document.createElement("img");
             image.src = data.sprites.front_default;
-            container.appendChild(image);
+            card.appendChild(image);
         });
 }
 for (let id = 1; id <= 10; id++) {
