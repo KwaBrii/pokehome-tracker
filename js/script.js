@@ -1,0 +1,1 @@
+console.log("PokeHome Tracker is working!");
