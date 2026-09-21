@@ -1,9 +1,10 @@
-function getPokemon(id) {
-    fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
+function getPokemon(url) {
+    fetch(url)
         .then(response => {
             if (!response.ok) {
-                throw new Error(`Failed to fetch Pokemon #${id}`);
+                throw new Error("Failed to fetch Pokemon");
             }
+
             return response.json();
         })
         .then(data => {
@@ -37,6 +38,25 @@ function displayPokemon(data) {
     container.appendChild(card);
 }
 
-for (let id = 1; id <= 10; id++) {
-    getPokemon(id);
+function getPokemonList() {
+    fetch("https://pokeapi.co/api/v2/pokemon?limit=1025")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch Pokemon list");
+            }
+
+            return response.json();
+        })
+        .then(data => {
+            const firstPokemon = data.results.slice(0, 10);
+
+            firstPokemon.forEach(pokemon => {
+                getPokemon(pokemon.url);
+            });
+        })
+        .catch(error => {
+            console.error(error);
+        });
 }
+
+getPokemonList();
