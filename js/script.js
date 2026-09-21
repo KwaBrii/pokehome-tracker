@@ -1,7 +1,17 @@
 function getPokemon(id) {
     fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
-        .then(response => response.json())
-        .then(displayPokemon);
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Failed to fetch Pokemon #${id}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            displayPokemon(data);
+        })
+        .catch(error => {
+            console.error(error);
+        });
 }
 
 function displayPokemon(data) {
