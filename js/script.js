@@ -5,6 +5,7 @@ function getPokemon(id) {
             const container = document.getElementById("pokemon-container");
 
             const card = document.createElement("div");
+            card.classList.add("pokemon-card");
             container.appendChild(card);
 
             const name = document.createElement("h2");
@@ -17,6 +18,7 @@ function getPokemon(id) {
 
             const image = document.createElement("img");
             image.src = data.sprites.front_default;
+            image.classList.add("pokemon-image");
             card.appendChild(image);
         });
 }
