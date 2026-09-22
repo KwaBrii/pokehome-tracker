@@ -1,7 +1,10 @@
 const ownedPokemon = getOwnedPokemon();
+
 const BATCH_SIZE = 20;
+const PAGE_SIZE = 50;
 
 let pokemonList = [];
+let displayedPokemon = 50;
 
 function getOwnedPokemon() {
     const savedData = localStorage.getItem("ownedPokemon");
@@ -46,7 +49,7 @@ function formatPokemonNumber(id) {
 function updateOwnedCounter() {
     const counter = document.getElementById("owned-counter");
     const ownedCount = Object.keys(ownedPokemon).length;
-    counter.textContent = `Owned: ${ownedCount} / 1025}`;
+    counter.textContent = `Owned: ${ownedCount} / 1025`;
 }
 
 function renderPokemonList(pokemonArray) {
@@ -63,6 +66,36 @@ function appendPokemonList(pokemonArray) {
     pokemonArray.forEach(pokemon => {
         displayPokemon(pokemon);
     });
+}
+
+function displayInitialPokemon() {
+    const pokemonToDisplay = pokemonList.slice(0, displayedPokemon);
+    renderPokemonList(pokemonToDisplay);
+}
+
+function loadMorePokemon() {
+    if (displayedPokemon >= pokemonList.length) {
+        return;
+    }
+
+    const nextPokemon = pokemonList.slice(
+        displayedPokemon,
+        displayedPokemon + PAGE_SIZE
+    );
+
+    appendPokemonList(nextPokemon);
+
+    displayedPokemon += nextPokemon.length;
+}
+
+function loadMorePokemon() {
+    const nextPokemon = pokemonList.slice(
+        displayedPokemon,
+        displayedPokemon + PAGE_SIZE
+    );
+
+    appendPokemonList(nextPokemon);
+    displayedPokemon += nextPokemon.length;
 }
 
 function displayPokemon(data) {
@@ -141,9 +174,9 @@ async function getPokemonList() {
 
             const loadedCount = pokemonList.length;
             loadingMessage.textContent = `Loading Pokémon... ${loadedCount} / ${data.results.length}`;
-            appendPokemonList(batchData);
         }
 
+        displayInitialPokemon();
         loadingMessage.textContent = "";
 
     } catch (error) {
@@ -181,5 +214,14 @@ searchInput.addEventListener("input", () => {
     filterPokemon();
 });
 
+const scrollTrigger = document.getElementById("scroll-trigger");
+
+const observer = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+        loadMorePokemon();
+    }
+});
+
+observer.observe(scrollTrigger);
 updateOwnedCounter();
 getPokemonList();
