@@ -1,5 +1,7 @@
 const ownedPokemon = getOwnedPokemon();
 
+let pokemonList = [];
+
 document.addEventListener("DOMContentLoaded", () => {
     updateOwnedCounter();
 });
@@ -48,6 +50,16 @@ function updateOwnedCounter() {
     const counter = document.getElementById("owned-counter");
     const ownedCount = Object.keys(ownedPokemon).length;
     counter.textContent = `Owned: ${ownedCount} / 1025`;
+}
+
+function renderPokemonList(pokemonArray) {
+    const container = document.getElementById("pokemon-container");
+
+    container.innerHTML = "";
+
+    pokemonArray.forEach(pokemon => {
+        displayPokemon(pokemon);
+    });
 }
 
 function displayPokemon(data) {
@@ -117,13 +129,29 @@ async function getPokemonList() {
             firstPokemon.map(pokemon => getPokemon(pokemon.url))
         );
 
-        pokemonData.forEach(pokemon => {
-            displayPokemon(pokemon);
-        });
+        pokemonList = pokemonData;
+
+        renderPokemonList(pokemonData);
 
     } catch (error) {
         console.error(error);
     }
 }
+
+function searchPokemon(searchTerm) {
+
+    const filteredPokemon = pokemonList.filter(pokemon =>
+        pokemon.name.includes(searchTerm.toLowerCase())
+    );
+
+    renderPokemonList(filteredPokemon);
+
+}
+
+const searchInput = document.getElementById("search-input");
+
+searchInput.addEventListener("input", event => {
+    searchPokemon(event.target.value);
+});
 
 getPokemonList();
