@@ -105,6 +105,7 @@ function displayPokemon(data) {
         }
         saveOwnedPokemon(ownedPokemon);
         updateOwnedCounter();
+        filterPokemon();
     });
 }
 
@@ -138,20 +139,34 @@ async function getPokemonList() {
     }
 }
 
-function searchPokemon(searchTerm) {
+function filterPokemon() {
+    const searchInput = document.getElementById("search-input").value.toLowerCase();
+    const showOwnedOnly = document.getElementById("owned-filter").checked;
 
-    const filteredPokemon = pokemonList.filter(pokemon =>
-        pokemon.name.includes(searchTerm.toLowerCase())
-    );
+    const filteredPokemon = pokemonList.filter(pokemon => {
+        const matchesSearch = pokemon.name.includes(searchInput);
+        const isOwned = ownedPokemon[pokemon.id] === true;
+
+        if (showOwnedOnly) {
+            return matchesSearch && isOwned;
+        }
+
+        return matchesSearch;
+    });
 
     renderPokemonList(filteredPokemon);
-
 }
+
+const ownedFilter = document.getElementById("owned-filter");
+
+ownedFilter.addEventListener("change", () => {
+    filterPokemon();
+});
 
 const searchInput = document.getElementById("search-input");
 
 searchInput.addEventListener("input", event => {
-    searchPokemon(event.target.value);
+    filterPokemon();
 });
 
 getPokemonList();
