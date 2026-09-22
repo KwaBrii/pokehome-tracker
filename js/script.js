@@ -1,18 +1,17 @@
-function getPokemon(url) {
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Failed to fetch Pokemon");
-            }
+async function getPokemon(url) {
+    try {
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error("Failed to fetch Pokemon");
+        }
 
-            return response.json();
-        })
-        .then(data => {
-            displayPokemon(data);
-        })
-        .catch(error => {
-            console.error(error);
-        });
+        const data = await response.json();
+            
+        displayPokemon(data);
+    } catch (error) {
+        console.error(error);
+    };
 }
 
 function displayPokemon(data) {
