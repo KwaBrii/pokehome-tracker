@@ -126,6 +126,9 @@ async function getPokemonList() {
         container.innerHTML = "";
 
         pokemonList = [];
+
+        const loadingMessage = document.getElementById("loading-message");
+
         for (let i = 0; i < data.results.length; i += BATCH_SIZE) {
             const batch = data.results.slice(i, i + BATCH_SIZE);
             const batchData = await Promise.all(
@@ -133,12 +136,12 @@ async function getPokemonList() {
             );
 
             pokemonList.push(...batchData);
+
+            const loadedCount = pokemonList.length;
+            loadingMessage.textContent = `Loading Pokémon... ${loadedCount} / ${data.results.length}`;
         }
 
         renderPokemonList(pokemonList);
-
-        const loadingMessage = document.getElementById("loading-message");
-        loadingMessage.textContent = "";
 
     } catch (error) {
         console.error(error);
