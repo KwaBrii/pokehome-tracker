@@ -14,6 +14,14 @@ async function getPokemon(url) {
     };
 }
 
+function formatPokemonName(name) {
+    return name.charAt(0).toUpperCase() + name.slice(1);
+}
+
+function formatPokemonNumber(id) {
+    return `#${String(id).padStart(4, "0")}`;
+}
+
 function displayPokemon(data) {
     const container = document.getElementById("pokemon-container");
 
@@ -21,10 +29,10 @@ function displayPokemon(data) {
     card.classList.add("pokemon-card");
 
     const name = document.createElement("h2");
-    name.textContent = data.name;
+    name.textContent = formatPokemonName(data.name);
 
     const number = document.createElement("p");
-    number.textContent = `#${data.id}`;
+    number.textContent = formatPokemonNumber(data.id);
 
     const image = document.createElement("img");
     image.src = data.sprites.front_default;
