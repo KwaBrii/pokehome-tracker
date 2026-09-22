@@ -1,4 +1,5 @@
 const ownedPokemon = getOwnedPokemon();
+const BATCH_SIZE = 20;
 
 let pokemonList = [];
 
@@ -124,15 +125,20 @@ async function getPokemonList() {
         const container = document.getElementById("pokemon-container");
         container.innerHTML = "";
 
-        const firstPokemon = data.results.slice(0, 10);
+        pokemonList = [];
+        for (let i = 0; i < data.results.length; i += BATCH_SIZE) {
+            const batch = data.results.slice(i, i + BATCH_SIZE);
+            const batchData = await Promise.all(
+                batch.map(pokemon => getPokemon(pokemon.url))
+            );
 
-        const pokemonData = await Promise.all(
-            firstPokemon.map(pokemon => getPokemon(pokemon.url))
-        );
+            pokemonList.push(...batchData);
+        }
 
-        pokemonList = pokemonData;
+        renderPokemonList(pokemonList);
 
-        renderPokemonList(pokemonData);
+        const loadingMessage = document.getElementById("loading-message");
+        loadingMessage.textContent = "";
 
     } catch (error) {
         console.error(error);
