@@ -24,17 +24,16 @@ function saveOwnedPokemon(ownedPokemon) {
 async function getPokemon(url) {
     try {
         const response = await fetch(url);
-        
+
         if (!response.ok) {
             throw new Error("Failed to fetch Pokemon");
         }
 
-        const data = await response.json();
-            
-        displayPokemon(data);
+        return await response.json();
+
     } catch (error) {
         console.error(error);
-    };
+    }
 }
 
 function formatPokemonName(name) {
@@ -97,25 +96,34 @@ function displayPokemon(data) {
     });
 }
 
-function getPokemonList() {
-    fetch("https://pokeapi.co/api/v2/pokemon?limit=1025")
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Failed to fetch Pokemon list");
-            }
+async function getPokemonList() {
+    try {
+        const response = await fetch(
+            "https://pokeapi.co/api/v2/pokemon?limit=1025"
+        );
 
-            return response.json();
-        })
-        .then(data => {
-            const firstPokemon = data.results.slice(0, 10);
+        if (!response.ok) {
+            throw new Error("Failed to fetch Pokemon list");
+        }
 
-            firstPokemon.forEach(pokemon => {
-                getPokemon(pokemon.url);
-            });
-        })
-        .catch(error => {
-            console.error(error);
+        const data = await response.json();
+
+        const container = document.getElementById("pokemon-container");
+        container.innerHTML = "";
+
+        const firstPokemon = data.results.slice(0, 10);
+
+        const pokemonData = await Promise.all(
+            firstPokemon.map(pokemon => getPokemon(pokemon.url))
+        );
+
+        pokemonData.forEach(pokemon => {
+            displayPokemon(pokemon);
         });
+
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 getPokemonList();
