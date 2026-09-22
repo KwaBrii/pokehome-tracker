@@ -1,3 +1,26 @@
+const ownedPokemon = getOwnedPokemon();
+
+document.addEventListener("DOMContentLoaded", () => {
+    updateOwnedCounter();
+});
+
+function getOwnedPokemon() {
+    const savedData = localStorage.getItem("ownedPokemon");
+
+    if (!savedData) {
+        return {};
+    }
+
+    return JSON.parse(savedData);
+}
+
+function saveOwnedPokemon(ownedPokemon) {
+    localStorage.setItem(
+        "ownedPokemon",
+        JSON.stringify(ownedPokemon)
+    );
+}
+
 async function getPokemon(url) {
     try {
         const response = await fetch(url);
@@ -20,6 +43,12 @@ function formatPokemonName(name) {
 
 function formatPokemonNumber(id) {
     return `#${String(id).padStart(4, "0")}`;
+}
+
+function updateOwnedCounter() {
+    const counter = document.getElementById("owned-counter");
+    const ownedCount = Object.keys(ownedPokemon).length;
+    counter.textContent = `Owned: ${ownedCount} / 1025`;
 }
 
 function displayPokemon(data) {
@@ -46,6 +75,7 @@ function displayPokemon(data) {
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
+    checkbox.checked = ownedPokemon[data.id] || false;
 
     const label = document.createElement("label");
     label.textContent = " Owned";
@@ -57,7 +87,13 @@ function displayPokemon(data) {
     card.appendChild(statusContainer);
 
     checkbox.addEventListener("change", () => {
-        console.log(data.name, checkbox.checked);
+        if (checkbox.checked) {
+            ownedPokemon[data.id] = true;
+        } else {
+            delete ownedPokemon[data.id];
+        }
+        saveOwnedPokemon(ownedPokemon);
+        updateOwnedCounter();
     });
 }
 
