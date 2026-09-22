@@ -43,6 +43,22 @@ function displayPokemon(data) {
     card.appendChild(number);
 
     container.appendChild(card);
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+
+    const label = document.createElement("label");
+    label.textContent = " Owned";
+
+    const statusContainer = document.createElement("div");
+    statusContainer.appendChild(checkbox);
+    statusContainer.appendChild(label);
+
+    card.appendChild(statusContainer);
+
+    checkbox.addEventListener("change", () => {
+        console.log(data.name, checkbox.checked);
+    });
 }
 
 function getPokemonList() {
