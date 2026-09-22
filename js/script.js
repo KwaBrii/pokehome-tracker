@@ -1,3 +1,8 @@
+const ownedPokemon = getOwnedPokemon();
+const BATCH_SIZE = 20;
+
+let pokemonList = [];
+
 function getOwnedPokemon() {
     const savedData = localStorage.getItem("ownedPokemon");
 
@@ -163,13 +168,6 @@ function filterPokemon() {
 
     renderPokemonList(filteredPokemon);
 }
-
-const ownedPokemon = getOwnedPokemon();
-const BATCH_SIZE = 20;
-
-let pokemonList = [];
-    updateOwnedCounter();
-    getPokemonList();
 
 const ownedFilter = document.getElementById("owned-filter");
 
