@@ -2,7 +2,6 @@ const ownedPokemon = getOwnedPokemon();
 const BATCH_SIZE = 20;
 
 let pokemonList = [];
-let totalPokemon = 0;
 
 function getOwnedPokemon() {
     const savedData = localStorage.getItem("ownedPokemon");
@@ -47,7 +46,7 @@ function formatPokemonNumber(id) {
 function updateOwnedCounter() {
     const counter = document.getElementById("owned-counter");
     const ownedCount = Object.keys(ownedPokemon).length;
-    counter.textContent = `Owned: ${ownedCount} / ${totalPokemon}`;
+    counter.textContent = `Owned: ${ownedCount} / 1025}`;
 }
 
 function renderPokemonList(pokemonArray) {
@@ -124,8 +123,6 @@ async function getPokemonList() {
         }
 
         const data = await response.json();
-        totalPokemon = data.count;
-        updateOwnedCounter();
 
         const container = document.getElementById("pokemon-container");
         container.innerHTML = "";
