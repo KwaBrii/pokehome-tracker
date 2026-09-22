@@ -1,12 +1,3 @@
-const ownedPokemon = getOwnedPokemon();
-const BATCH_SIZE = 20;
-
-let pokemonList = [];
-
-document.addEventListener("DOMContentLoaded", () => {
-    updateOwnedCounter();
-});
-
 function getOwnedPokemon() {
     const savedData = localStorage.getItem("ownedPokemon");
 
@@ -63,6 +54,12 @@ function renderPokemonList(pokemonArray) {
     });
 }
 
+function appendPokemonList(pokemonArray) {
+    pokemonArray.forEach(pokemon => {
+        displayPokemon(pokemon);
+    });
+}
+
 function displayPokemon(data) {
     const container = document.getElementById("pokemon-container");
 
@@ -79,24 +76,23 @@ function displayPokemon(data) {
     image.src = data.sprites.front_default;
     image.classList.add("pokemon-image");
 
-    card.appendChild(image);
-    card.appendChild(name);
-    card.appendChild(number);
-
-    container.appendChild(card);
-
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = ownedPokemon[data.id] || false;
 
     const label = document.createElement("label");
     label.textContent = " Owned";
-
+    
     const statusContainer = document.createElement("div");
     statusContainer.appendChild(checkbox);
     statusContainer.appendChild(label);
 
+    card.appendChild(image);
+    card.appendChild(name);
+    card.appendChild(number);
     card.appendChild(statusContainer);
+
+    container.appendChild(card);
 
     checkbox.addEventListener("change", () => {
         if (checkbox.checked) {
@@ -104,6 +100,7 @@ function displayPokemon(data) {
         } else {
             delete ownedPokemon[data.id];
         }
+
         saveOwnedPokemon(ownedPokemon);
         updateOwnedCounter();
         filterPokemon();
@@ -139,9 +136,10 @@ async function getPokemonList() {
 
             const loadedCount = pokemonList.length;
             loadingMessage.textContent = `Loading Pokémon... ${loadedCount} / ${data.results.length}`;
+            appendPokemonList(batchData);
         }
 
-        renderPokemonList(pokemonList);
+        loadingMessage.textContent = "";
 
     } catch (error) {
         console.error(error);
@@ -166,6 +164,13 @@ function filterPokemon() {
     renderPokemonList(filteredPokemon);
 }
 
+const ownedPokemon = getOwnedPokemon();
+const BATCH_SIZE = 20;
+
+let pokemonList = [];
+    updateOwnedCounter();
+    getPokemonList();
+
 const ownedFilter = document.getElementById("owned-filter");
 
 ownedFilter.addEventListener("change", () => {
@@ -174,8 +179,9 @@ ownedFilter.addEventListener("change", () => {
 
 const searchInput = document.getElementById("search-input");
 
-searchInput.addEventListener("input", event => {
+searchInput.addEventListener("input", () => {
     filterPokemon();
 });
 
+updateOwnedCounter();
 getPokemonList();
