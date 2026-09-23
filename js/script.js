@@ -3,6 +3,7 @@ const ownedPokemon = getOwnedPokemon();
 const PAGE_SIZE = 50;
 
 let pokemonList = [];
+let loadedPokemon = {};
 let displayedPokemon = 50;
 
 function getOwnedPokemon() {
@@ -67,8 +68,17 @@ function appendPokemonList(pokemonArray) {
     });
 }
 
+function getPokemonId(url) {
+    const parts = url.split("/");
+    return Number(parts[parts.length - 2]);
+}
+
 function displayInitialPokemon() {
-    const pokemonToDisplay = pokemonList.slice(0, displayedPokemon);
+    const pokemonToDisplay = pokemonList
+        .slice(0, displayedPokemon)
+        .map(pokemon => loadedPokemon[getPokemonId(pokemon.url)])
+        .filter(pokemon => pokemon);
+
     renderPokemonList(pokemonToDisplay);
 }
 
@@ -86,7 +96,9 @@ async function loadMorePokemon() {
         nextPokemon.map(pokemon => getPokemon(pokemon.url))
     );
 
-    pokemonList.splice(displayedPokemon, PAGE_SIZE, ...pokemonDetails);
+    pokemonDetails.forEach(pokemon => {
+        loadedPokemon[pokemon.id] = pokemon;
+    });
     appendPokemonList(pokemonDetails);
     displayedPokemon += pokemonDetails.length;
 }
@@ -167,25 +179,72 @@ async function loadPokemonDetails() {
         pokemonToLoad.map(pokemon => getPokemon(pokemon.url))
     );
 
-    pokemonList.splice(0, PAGE_SIZE, ...pokemonDetails);
+    pokemonDetails.forEach(pokemon => {
+        loadedPokemon[pokemon.id] = pokemon;
+    });
+
     displayInitialPokemon();
 }
 
-function filterPokemon() {
+async function getPokemonById(id) {
+    if (loadedPokemon[id]) {
+        return loadedPokemon[id];
+    }
+
+    const pokemon = pokemonList.find(
+        pokemon => getPokemonId(pokemon.url) === id
+    );
+
+    if (!pokemon) {
+        return null;
+    }
+
+    const data = await getPokemon(pokemon.url);
+
+    loadedPokemon[id] = data;
+
+    return data;
+}
+
+async function filterPokemon() {
     const searchInput = document.getElementById("search-input").value.toLowerCase();
     const showOwnedOnly = document.getElementById("owned-filter").checked;
 
-    const filteredPokemon = pokemonList.filter(pokemon => {
-        const matchesSearch = pokemon.name.includes(searchInput);
-        const isOwned = ownedPokemon[pokemon.id] === true;
+    if (searchInput === "" && !showOwnedOnly) {
+        displayedPokemon = 50;
 
-        if (showOwnedOnly) {
-            return matchesSearch && isOwned;
+        const pokemonToDisplay = pokemonList
+            .slice(0, displayedPokemon)
+            .map(pokemon => loadedPokemon[getPokemonId(pokemon.url)])
+            .filter(pokemon => pokemon);
+
+        renderPokemonList(pokemonToDisplay);
+        return;
+    }
+
+    const matchingPokemon = pokemonList.filter(pokemon => 
+        pokemon.name.includes(searchInput)
+    );
+
+    const filteredPokemon = [];
+
+    for (const pokemon of matchingPokemon) {
+        const id = getPokemonId(pokemon.url);
+
+        const data = await getPokemonById(id);
+
+        if (!data) {
+            continue;
         }
 
-        return matchesSearch;
-    });
+        const isOwned = ownedPokemon[data.id] === true;
 
+        if (showOwnedOnly && !isOwned) {
+            continue;
+        }
+
+        filteredPokemon.push(data);
+    }
     renderPokemonList(filteredPokemon);
 }
 
@@ -204,7 +263,14 @@ searchInput.addEventListener("input", () => {
 const scrollTrigger = document.getElementById("scroll-trigger");
 
 const observer = new IntersectionObserver(entries => {
-    if (entries[0].isIntersecting) {
+    const searchInput = document.getElementById("search-input");
+    const ownedFilter = document.getElementById("owned-filter");
+    
+    if (
+        entries[0].isIntersecting &&
+        searchInput.value === "" &&
+        !ownedFilter.checked
+    ) {
         loadMorePokemon();
     }
 });
