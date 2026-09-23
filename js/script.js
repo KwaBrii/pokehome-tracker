@@ -213,6 +213,11 @@ async function filterPokemon() {
     const searchInput = document.getElementById("search-input").value.toLowerCase();
     const showOwnedOnly = document.getElementById("owned-filter").checked;
 
+    const loadingMessage = document.getElementById("loading-message");
+    if (searchInput !== "" || showOwnedOnly) {
+        loadingMessage.textContent = "Loading Pokémon...";
+        loadingMessage.style.display = "block";
+    }    
 
     // No filters active
     if (searchInput === "" && !showOwnedOnly) {
@@ -226,6 +231,8 @@ async function filterPokemon() {
         if (requestId !== searchRequestId) {
             return;
         }
+
+        loadingMessage.style.display = "none";
         renderPokemonList(pokemonToDisplay);
         return;
     }
@@ -272,6 +279,8 @@ async function filterPokemon() {
     if (requestId !== searchRequestId) {
     return;
     }
+
+    loadingMessage.style.display = "none";
     renderPokemonList(filteredPokemon);
 }
 
