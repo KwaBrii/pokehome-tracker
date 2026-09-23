@@ -1,6 +1,5 @@
 const ownedPokemon = getOwnedPokemon();
 
-const BATCH_SIZE = 20;
 const PAGE_SIZE = 50;
 
 let pokemonList = [];
@@ -73,7 +72,7 @@ function displayInitialPokemon() {
     renderPokemonList(pokemonToDisplay);
 }
 
-function loadMorePokemon() {
+async function loadMorePokemon() {
     if (displayedPokemon >= pokemonList.length) {
         return;
     }
@@ -83,19 +82,13 @@ function loadMorePokemon() {
         displayedPokemon + PAGE_SIZE
     );
 
-    appendPokemonList(nextPokemon);
-
-    displayedPokemon += nextPokemon.length;
-}
-
-function loadMorePokemon() {
-    const nextPokemon = pokemonList.slice(
-        displayedPokemon,
-        displayedPokemon + PAGE_SIZE
+    const pokemonDetails = await Promise.all(
+        nextPokemon.map(pokemon => getPokemon(pokemon.url))
     );
 
-    appendPokemonList(nextPokemon);
-    displayedPokemon += nextPokemon.length;
+    pokemonList.splice(displayedPokemon, PAGE_SIZE, ...pokemonDetails);
+    appendPokemonList(pokemonDetails);
+    displayedPokemon += pokemonDetails.length;
 }
 
 function displayPokemon(data) {
@@ -160,28 +153,22 @@ async function getPokemonList() {
         const container = document.getElementById("pokemon-container");
         container.innerHTML = "";
 
-        pokemonList = [];
-
-        const loadingMessage = document.getElementById("loading-message");
-
-        for (let i = 0; i < data.results.length; i += BATCH_SIZE) {
-            const batch = data.results.slice(i, i + BATCH_SIZE);
-            const batchData = await Promise.all(
-                batch.map(pokemon => getPokemon(pokemon.url))
-            );
-
-            pokemonList.push(...batchData);
-
-            const loadedCount = pokemonList.length;
-            loadingMessage.textContent = `Loading Pokémon... ${loadedCount} / ${data.results.length}`;
-        }
-
-        displayInitialPokemon();
-        loadingMessage.textContent = "";
-
+        pokemonList = data.results;
+        await loadPokemonDetails();
     } catch (error) {
         console.error(error);
     }
+}
+
+async function loadPokemonDetails() {
+    const pokemonToLoad = pokemonList.slice(0, PAGE_SIZE);
+
+    const pokemonDetails = await Promise.all(
+        pokemonToLoad.map(pokemon => getPokemon(pokemon.url))
+    );
+
+    pokemonList.splice(0, PAGE_SIZE, ...pokemonDetails);
+    displayInitialPokemon();
 }
 
 function filterPokemon() {
