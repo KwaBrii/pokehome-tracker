@@ -39,6 +39,24 @@ h1 {
     color: white;
 }
 
+.progress-bar {
+    width: 100%;
+    max-width: 500px;
+    height: 12px;
+    background-color: #e0e0e0;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#progress-fill {
+    width: 0%;
+    height: 100%;
+    background-color: #21be9c;
+    transition: width 0.3s ease;
+}
+
+
+/* Type colors */
 .type-normal {
     background-color: #a8a77a;
 }
