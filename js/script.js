@@ -6,6 +6,7 @@ let pokemonList = [];
 let loadedPokemon = {};
 let displayedPokemon = 50;
 let searchRequestId = 0;
+let isLoadingMore = false;
 
 function getOwnedPokemon() {
     const savedData = localStorage.getItem("ownedPokemon");
@@ -84,24 +85,49 @@ function displayInitialPokemon() {
 }
 
 async function loadMorePokemon() {
-    if (displayedPokemon >= pokemonList.length) {
+    if (isLoadingMore || displayedPokemon >= pokemonList.length) {
         return;
     }
 
-    const nextPokemon = pokemonList.slice(
-        displayedPokemon,
-        displayedPokemon + PAGE_SIZE
+    isLoadingMore = true;
+
+    const loadingMessage = document.getElementById("loading-message");
+
+    const start = displayedPokemon + 1;
+    const end = Math.min(
+        displayedPokemon + PAGE_SIZE,
+        pokemonList.length
     );
 
-    const pokemonDetails = await Promise.all(
-        nextPokemon.map(pokemon => getPokemon(pokemon.url))
-    );
+    loadingMessage.textContent =
+        `Loading Pokémon... ${start}–${end} / ${pokemonList.length}`;
 
-    pokemonDetails.forEach(pokemon => {
-        loadedPokemon[pokemon.id] = pokemon;
-    });
-    appendPokemonList(pokemonDetails);
-    displayedPokemon += pokemonDetails.length;
+    loadingMessage.style.display = "block";
+
+    try {
+        loadingMessage.textContent = `Loading Pokémon... ${start}–${end} / ${pokemonList.length}`;
+        loadingMessage.style.display = "block";
+
+        const nextPokemon = pokemonList.slice(
+            displayedPokemon,
+            displayedPokemon + PAGE_SIZE
+        );
+
+        const pokemonDetails = await Promise.all(
+            nextPokemon.map(pokemon => getPokemon(pokemon.url))
+        );
+
+        pokemonDetails.forEach(pokemon => {
+            loadedPokemon[pokemon.id] = pokemon;
+        });
+
+        appendPokemonList(pokemonDetails);
+        displayedPokemon += pokemonDetails.length;
+
+    } finally {
+    isLoadingMore = false;
+    loadingMessage.style.display = "none";
+    }
 }
 
 function displayPokemon(data) {
