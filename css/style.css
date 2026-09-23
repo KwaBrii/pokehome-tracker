@@ -8,8 +8,20 @@ h1 {
 
 .pokemon-card {
     border: 1px solid #ccc;
+    border-radius: 12px;
     padding: 16px;
     text-align: center;
+    background-color: white;
+}
+
+.pokemon-card h2{
+    margin: 8px 0 4px;
+    font-size: 20px;
+}
+
+.pokemon-card > p {
+    margin: 0 0 8px;
+    font-size: 14px;
 }
 
 #pokemon-container {
@@ -21,13 +33,14 @@ h1 {
 .pokemon-image {
     width: 120px;
     height: 120px;
+    object-fit: contain;
 }
 
 .pokemon-types {
     display: flex;
     justify-content: center;
     gap: 6px;
-    margin: 8px 0;
+    margin: 8px 0 12px;
 }
 
 .pokemon-type {
