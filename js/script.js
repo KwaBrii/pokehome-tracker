@@ -51,7 +51,9 @@ function formatPokemonNumber(id) {
 function updateOwnedCounter() {
     const counter = document.getElementById("owned-counter");
     const ownedCount = Object.keys(ownedPokemon).length;
-    counter.textContent = `Owned: ${ownedCount} / 1025`;
+    const percentage = ((ownedCount / 1025) * 100);
+    
+    counter.textContent = `Owned: ${ownedCount} / 1025 (${percentage.toFixed(2)}%)`;
 }
 
 function renderPokemonList(pokemonArray) {
