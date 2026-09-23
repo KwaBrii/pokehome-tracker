@@ -116,6 +116,15 @@ function displayPokemon(data) {
     const number = document.createElement("p");
     number.textContent = formatPokemonNumber(data.id);
 
+    const typesContainer = document.createElement("div");
+    typesContainer.classList.add("pokemon-types");
+    data.types.forEach(type => {
+        const typeBadge = document.createElement("span");
+        typeBadge.textContent = formatPokemonName(type.type.name);
+        typeBadge.classList.add("pokemon-type", `type-${type.type.name}`);
+        typesContainer.appendChild(typeBadge);
+    });
+
     const image = document.createElement("img");
     image.src = data.sprites.front_default;
     image.classList.add("pokemon-image");
@@ -134,6 +143,7 @@ function displayPokemon(data) {
     card.appendChild(image);
     card.appendChild(name);
     card.appendChild(number);
+    card.appendChild(typesContainer);
     card.appendChild(statusContainer);
 
     container.appendChild(card);
