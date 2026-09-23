@@ -5,6 +5,7 @@ const PAGE_SIZE = 50;
 let pokemonList = [];
 let loadedPokemon = {};
 let displayedPokemon = 50;
+let searchRequestId = 0;
 
 function getOwnedPokemon() {
     const savedData = localStorage.getItem("ownedPokemon");
@@ -207,9 +208,13 @@ async function getPokemonById(id) {
 }
 
 async function filterPokemon() {
+    const requestId = ++searchRequestId;
+
     const searchInput = document.getElementById("search-input").value.toLowerCase();
     const showOwnedOnly = document.getElementById("owned-filter").checked;
 
+
+    // No filters active
     if (searchInput === "" && !showOwnedOnly) {
         displayedPokemon = 50;
 
@@ -218,14 +223,29 @@ async function filterPokemon() {
             .map(pokemon => loadedPokemon[getPokemonId(pokemon.url)])
             .filter(pokemon => pokemon);
 
+        if (requestId !== searchRequestId) {
+            return;
+        }
         renderPokemonList(pokemonToDisplay);
         return;
     }
 
-    const matchingPokemon = pokemonList.filter(pokemon => 
-        pokemon.name.includes(searchInput)
-    );
-
+    let matchingPokemon;
+    
+    // Owned only
+    if (showOwnedOnly) {
+        const ownedIds = Object.keys(ownedPokemon);
+        matchingPokemon = pokemonList.filter(pokemon => {
+            const id = getPokemonId(pokemon.url);
+            return ownedIds.includes(id.toString());
+        });
+    } else {
+        // Search
+        matchingPokemon = pokemonList.filter(pokemon => 
+            pokemon.name.includes(searchInput)
+        );
+    }
+    
     const filteredPokemon = [];
 
     for (const pokemon of matchingPokemon) {
@@ -237,13 +257,20 @@ async function filterPokemon() {
             continue;
         }
 
-        const isOwned = ownedPokemon[data.id] === true;
-
-        if (showOwnedOnly && !isOwned) {
+        // If both filters are active
+        if (
+            showOwnedOnly &&
+            searchInput !== "" &&
+            !data.name.includes(searchInput)
+        ) {
             continue;
         }
 
         filteredPokemon.push(data);
+    }
+
+    if (requestId !== searchRequestId) {
+    return;
     }
     renderPokemonList(filteredPokemon);
 }
