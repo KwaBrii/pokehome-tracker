@@ -370,6 +370,7 @@ async function filterPokemon() {
 
     const searchInput = document.getElementById("search-input").value.toLowerCase();
     const showOwnedOnly = document.getElementById("owned-filter").checked;
+    const showFavoriteOnly = document.getElementById("favorite-filter").checked;
 
     const loadingMessage = document.getElementById("loading-message");
     if (searchInput !== "" || showOwnedOnly) {
@@ -378,7 +379,7 @@ async function filterPokemon() {
     }    
 
     // No filters active
-    if (searchInput === "" && !showOwnedOnly) {
+    if (searchInput === "" && !showOwnedOnly && !showFavoriteOnly) {
         displayedPokemon = 50;
 
         const pokemonToDisplay = pokemonList
@@ -398,18 +399,27 @@ async function filterPokemon() {
     let matchingPokemon;
     
     // Owned only
-    if (showOwnedOnly) {
-        const ownedIds = Object.keys(ownedPokemon);
-        matchingPokemon = pokemonList.filter(pokemon => {
-            const id = getPokemonId(pokemon.url);
-            return ownedIds.includes(id.toString());
-        });
-    } else {
-        // Search
-        matchingPokemon = pokemonList.filter(pokemon => 
-            pokemon.name.includes(searchInput)
+    matchingPokemon = pokemonList.filter(pokemon => {
+        const id = getPokemonId(pokemon.url);
+
+        const matchesSearch =
+            searchInput === "" ||
+            pokemon.name.includes(searchInput);
+
+        const matchesOwned =
+            !showOwnedOnly ||
+            ownedPokemon[id] === true;
+
+        const matchesFavorite =
+            !showFavoriteOnly ||
+            favoritePokemon[id] === true;
+
+        return (
+            matchesSearch &&
+            matchesOwned &&
+            matchesFavorite
         );
-    }
+    });
     
     const filteredPokemon = [];
 
@@ -448,6 +458,13 @@ ownedFilter.addEventListener("change", () => {
     filterPokemon();
 });
 
+const favoriteFilter = document.getElementById("favorite-filter");
+
+favoriteFilter.addEventListener("change", () => {
+        filterPokemon();
+    }
+);
+
 const searchInput = document.getElementById("search-input");
 
 searchInput.addEventListener("input", () => {
@@ -459,11 +476,13 @@ const scrollTrigger = document.getElementById("scroll-trigger");
 const observer = new IntersectionObserver(entries => {
     const searchInput = document.getElementById("search-input");
     const ownedFilter = document.getElementById("owned-filter");
+    const favoriteFilter = document.getElementById("favorite-filter");
     
     if (
         entries[0].isIntersecting &&
         searchInput.value === "" &&
-        !ownedFilter.checked
+        !ownedFilter.checked &&
+        !favoriteFilter.checked
     ) {
         loadMorePokemon();
     }
