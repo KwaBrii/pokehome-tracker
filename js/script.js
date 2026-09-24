@@ -1,4 +1,5 @@
 const ownedPokemon = getOwnedPokemon();
+const favoritePokemon = getFavoritePokemon();
 
 const PAGE_SIZE = 50;
 
@@ -18,10 +19,28 @@ function getOwnedPokemon() {
     return JSON.parse(savedData);
 }
 
+function getFavoritePokemon() {
+    const savedData =
+        localStorage.getItem("favoritePokemon");
+
+    if (!savedData) {
+        return {};
+    }
+
+    return JSON.parse(savedData);
+}
+
 function saveOwnedPokemon(ownedPokemon) {
     localStorage.setItem(
         "ownedPokemon",
         JSON.stringify(ownedPokemon)
+    );
+}
+
+function saveFavoritePokemon(favoritePokemon) {
+    localStorage.setItem(
+        "favoritePokemon",
+        JSON.stringify(favoritePokemon)
     );
 }
 
@@ -237,6 +256,30 @@ function displayPokemon(data) {
     checkbox.type = "checkbox";
     checkbox.checked = ownedPokemon[data.id] || false;
 
+    const favoriteButton = document.createElement("button");
+
+    favoriteButton.textContent =
+    favoritePokemon[data.id]
+        ? "★"
+        : "☆";
+
+    favoriteButton.addEventListener("click", () => {
+
+        if (
+            favoritePokemon[data.id]
+        ) {
+            delete favoritePokemon[data.id];
+        } else {
+            favoritePokemon[data.id] = true;
+        }
+
+        saveFavoritePokemon(favoritePokemon);
+        favoriteButton.textContent =
+            favoritePokemon[data.id]
+                ? "★"
+                : "☆";
+    });
+
     const label = document.createElement("label");
     label.textContent = " Owned";
     
@@ -249,7 +292,8 @@ function displayPokemon(data) {
     card.appendChild(number);
     card.appendChild(typesContainer);
     card.appendChild(statusContainer);
-
+    card.appendChild(favoriteButton);
+    
     container.appendChild(card);
 
     checkbox.addEventListener("change", () => {
