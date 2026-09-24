@@ -135,6 +135,19 @@ async function loadMorePokemon() {
     }
 }
 
+function exportCollection() {
+    const data = JSON.stringify(ownedPokemon, null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "owned_pokemon.json";
+    link.click();
+
+    URL.revokeObjectURL(url);
+}
+
 function displayPokemon(data) {
     const container = document.getElementById("pokemon-container");
 
@@ -351,6 +364,9 @@ const observer = new IntersectionObserver(entries => {
         loadMorePokemon();
     }
 });
+
+const exportButton = document.getElementById("export-button");
+exportButton.addEventListener("click", exportCollection);
 
 observer.observe(scrollTrigger);
 updateOwnedCounter();
