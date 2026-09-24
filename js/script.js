@@ -135,6 +135,19 @@ async function loadMorePokemon() {
     }
 }
 
+const importButton =
+    document.getElementById("import-button");
+
+const importFile =
+    document.getElementById("import-file");
+
+importButton.addEventListener(
+    "click",
+    () => {
+        importFile.click();
+    }
+);
+
 function exportCollection() {
     const data = JSON.stringify(ownedPokemon, null, 2);
     const blob = new Blob([data], { type: "application/json" });
@@ -146,6 +159,34 @@ function exportCollection() {
     link.click();
 
     URL.revokeObjectURL(url);
+}
+
+function importCollection(event) {
+    const file = event.target.files[0];
+
+    if (!file) {
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = e => {
+        try {
+            const importedData = JSON.parse(e.target.result);
+
+            Object.keys(ownedPokemon).forEach(key => {
+                delete ownedPokemon[key];
+            });
+
+            Object.assign(ownedPokemon, importedData);
+            saveOwnedPokemon(ownedPokemon);
+            updateOwnedCounter();
+            filterPokemon();
+        } catch {
+            alert(
+                "Invalid JSON file. Please ensure the file is a valid JSON representation of your owned Pokémon collection."
+            );
+        }
+    };
+    reader.readAsText(file);
 }
 
 function displayPokemon(data) {
@@ -364,6 +405,8 @@ const observer = new IntersectionObserver(entries => {
         loadMorePokemon();
     }
 });
+
+importFile.addEventListener("change", importCollection);
 
 const exportButton = document.getElementById("export-button");
 exportButton.addEventListener("click", exportCollection);
