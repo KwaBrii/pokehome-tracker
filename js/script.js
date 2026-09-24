@@ -189,6 +189,25 @@ function importCollection(event) {
     reader.readAsText(file);
 }
 
+function resetCollection() {
+    const confirmed = confirm(
+        "Are you sure you want to reset your collection? This action cannot be undone."
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    Object.keys(ownedPokemon).forEach(key => {
+        delete ownedPokemon[key];
+    });
+
+    saveOwnedPokemon(ownedPokemon);
+    updateOwnedCounter();
+    filterPokemon();
+    alert("Collection reset successfully.");
+}
+
 function displayPokemon(data) {
     const container = document.getElementById("pokemon-container");
 
@@ -405,6 +424,9 @@ const observer = new IntersectionObserver(entries => {
         loadMorePokemon();
     }
 });
+
+const resetButton = document.getElementById("reset-button");
+resetButton.addEventListener("click", resetCollection);
 
 importFile.addEventListener("change", importCollection);
 
