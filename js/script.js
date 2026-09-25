@@ -1,5 +1,6 @@
 const ownedPokemon = getOwnedPokemon();
 const favoritePokemon = getFavoritePokemon();
+const TOTAL_POKEMON = 1025;
 
 const PAGE_SIZE = 50;
 
@@ -72,9 +73,9 @@ function updateOwnedCounter() {
     const progressFill = document.getElementById("progress-fill");
 
     const ownedCount = Object.keys(ownedPokemon).length;
-    const percentage = ((ownedCount / 1025) * 100);
+    const percentage = ((ownedCount / TOTAL_POKEMON) * 100);
 
-    counter.textContent = `Owned: ${ownedCount} / 1025 (${percentage.toFixed(2)}%)`;
+    counter.textContent = `Owned: ${ownedCount} / ${TOTAL_POKEMON} (${percentage.toFixed(2)}%)`;
     progressFill.style.width = `${percentage}%`;
 }
 
@@ -359,10 +360,29 @@ async function getPokemonById(id) {
     }
 
     const data = await getPokemon(pokemon.url);
-
     loadedPokemon[id] = data;
-
     return data;
+}
+
+function matchesSearch(pokemon, searchInput) {
+    return (searchInput === "" || pokemon.name.includes(searchInput)
+    );
+}
+
+function matchesOwned(pokemonId, showOwnedOnly) {
+    return (
+        !showOwnedOnly || ownedPokemon[pokemonId] === true
+    );
+}
+
+function matchesFavorite(
+    pokemonId,
+    showFavoriteOnly
+) {
+    return (
+        !showFavoriteOnly ||
+        favoritePokemon[pokemonId] === true
+    );
 }
 
 async function filterPokemon() {
@@ -399,25 +419,14 @@ async function filterPokemon() {
     let matchingPokemon;
     
     // Owned only
-    matchingPokemon = pokemonList.filter(pokemon => {
-        const id = getPokemonId(pokemon.url);
-
-        const matchesSearch =
-            searchInput === "" ||
-            pokemon.name.includes(searchInput);
-
-        const matchesOwned =
-            !showOwnedOnly ||
-            ownedPokemon[id] === true;
-
-        const matchesFavorite =
-            !showFavoriteOnly ||
-            favoritePokemon[id] === true;
-
+    matchingPokemon = pokemonList.filter(
+    pokemon => {
+        const id =
+            getPokemonId(pokemon.url);
         return (
-            matchesSearch &&
-            matchesOwned &&
-            matchesFavorite
+            matchesSearch(pokemon, searchInput) &&
+            matchesOwned(id, showOwnedOnly) && 
+            matchesFavorite(id, showFavoriteOnly)
         );
     });
     
