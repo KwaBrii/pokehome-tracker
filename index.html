@@ -9,20 +9,22 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <header class="tracker-header">
+        <div>
+            <h1>PokeHome Tracker</h1>
+            <p id="owned-counter">Owned: 0 / 1025</p>
+        </div>
 
-    <h1>PokeHome Tracker</h1>
-
+        <div class="progress-bar">
+            <div id="progress-fill"></div>
+        </div>
+    </header>
+    
     <div class="filters">
         <input type="text" id="search-input" placeholder="Search Pokémon by name or ID...">
         <select id="type-filter"><option value="">All Types</option></select>
         <label><input type="checkbox" id="owned-filter"> Show only owned Pokémon</label>
         <label><input type="checkbox" id="favorite-filter">Show only favorite Pokémon</label>
-    </div>
-
-    <p id="owned-counter">Owned: 0 / 1025</p>
-
-    <div class="progress-bar">
-        <div id="progress-fill"></div>
     </div>
 
     <div class="collection-actions">
