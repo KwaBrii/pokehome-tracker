@@ -247,6 +247,10 @@ function displayPokemon(data) {
     const card = document.createElement("div");
     card.classList.add("pokemon-card");
 
+    if (ownedPokemon[data.id]) {
+        card.classList.add("owned");
+    }
+
     const name = document.createElement("h2");
     name.textContent = formatPokemonName(data.name);
 
@@ -271,11 +275,15 @@ function displayPokemon(data) {
     checkbox.checked = ownedPokemon[data.id] || false;
 
     const favoriteButton = document.createElement("button");
-
     favoriteButton.textContent =
-    favoritePokemon[data.id]
-        ? "★"
-        : "☆";
+        favoritePokemon[data.id]
+            ? "★"
+            : "☆";
+    favoriteButton.classList.add("favorite-button");
+
+    if (favoritePokemon[data.id]) {
+        favoriteButton.classList.add("active");
+    }
 
     favoriteButton.addEventListener("click", () => {
 
@@ -283,8 +291,10 @@ function displayPokemon(data) {
             favoritePokemon[data.id]
         ) {
             delete favoritePokemon[data.id];
+            favoriteButton.classList.remove("active");
         } else {
             favoritePokemon[data.id] = true;
+            favoriteButton.classList.add("active");
         }
 
         saveFavoritePokemon(favoritePokemon);
@@ -313,8 +323,10 @@ function displayPokemon(data) {
     checkbox.addEventListener("change", () => {
         if (checkbox.checked) {
             ownedPokemon[data.id] = true;
+            card.classList.add("owned");
         } else {
             delete ownedPokemon[data.id];
+            card.classList.remove("owned");
         }
 
         saveOwnedPokemon(ownedPokemon);
