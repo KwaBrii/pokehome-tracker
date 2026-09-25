@@ -1,6 +1,7 @@
 const ownedPokemon = getOwnedPokemon();
 const favoritePokemon = getFavoritePokemon();
 const TOTAL_POKEMON = 1025;
+const POKEMON_TYPES = ["normal", "fire", "water", "electric", "grass", "ice", "fighting", "poison", "ground", "flying", "psychic", "bug", "rock", "ghost", "dragon", "dark", "steel", "fairy"];
 
 const PAGE_SIZE = 50;
 
@@ -20,6 +21,13 @@ function getOwnedPokemon() {
     return JSON.parse(savedData);
 }
 
+function saveOwnedPokemon(ownedPokemon) {
+    localStorage.setItem(
+        "ownedPokemon",
+        JSON.stringify(ownedPokemon)
+    );
+}
+
 function getFavoritePokemon() {
     const savedData =
         localStorage.getItem("favoritePokemon");
@@ -31,18 +39,23 @@ function getFavoritePokemon() {
     return JSON.parse(savedData);
 }
 
-function saveOwnedPokemon(ownedPokemon) {
-    localStorage.setItem(
-        "ownedPokemon",
-        JSON.stringify(ownedPokemon)
-    );
-}
-
 function saveFavoritePokemon(favoritePokemon) {
     localStorage.setItem(
         "favoritePokemon",
         JSON.stringify(favoritePokemon)
     );
+}
+
+function populateTypeFilter() {
+    const typeFilter = document.getElementById("type-filter");
+
+    POKEMON_TYPES.forEach(type => {
+        const option = document.createElement("option");
+        option.value = type;
+        option.textContent = formatPokemonName(type);
+
+        typeFilter.appendChild(option);
+    });
 }
 
 async function getPokemon(url) {
@@ -375,36 +388,63 @@ function matchesOwned(pokemonId, showOwnedOnly) {
     );
 }
 
-function matchesFavorite(
-    pokemonId,
-    showFavoriteOnly
-) {
+function matchesFavorite(pokemonId, showFavoriteOnly) {
     return (
-        !showFavoriteOnly ||
-        favoritePokemon[pokemonId] === true
+        !showFavoriteOnly || favoritePokemon[pokemonId] === true
     );
+}
+
+function matchesType(pokemon, selectedType) {
+    if (selectedType === "") {
+        return true;
+    }
+
+    return pokemon.types.some(type => type.type.name === selectedType);
 }
 
 async function filterPokemon() {
     const requestId = ++searchRequestId;
 
-    const searchInput = document.getElementById("search-input").value.toLowerCase();
-    const showOwnedOnly = document.getElementById("owned-filter").checked;
-    const showFavoriteOnly = document.getElementById("favorite-filter").checked;
+    const searchInput =
+        document.getElementById("search-input").value.toLowerCase();
 
-    const loadingMessage = document.getElementById("loading-message");
-    if (searchInput !== "" || showOwnedOnly) {
+    const showOwnedOnly =
+        document.getElementById("owned-filter").checked;
+
+    const showFavoriteOnly =
+        document.getElementById("favorite-filter").checked;
+
+    const selectedType =
+        document.getElementById("type-filter").value;
+
+    const loadingMessage =
+        document.getElementById("loading-message");
+
+    if (
+        searchInput !== "" ||
+        showOwnedOnly ||
+        showFavoriteOnly ||
+        selectedType !== ""
+    ) {
         loadingMessage.textContent = "Loading Pokémon...";
         loadingMessage.style.display = "block";
-    }    
+    }
 
     // No filters active
-    if (searchInput === "" && !showOwnedOnly && !showFavoriteOnly) {
+    if (
+        searchInput === "" &&
+        !showOwnedOnly &&
+        !showFavoriteOnly &&
+        selectedType === ""
+    ) {
         displayedPokemon = 50;
 
         const pokemonToDisplay = pokemonList
             .slice(0, displayedPokemon)
-            .map(pokemon => loadedPokemon[getPokemonId(pokemon.url)])
+            .map(
+                pokemon =>
+                    loadedPokemon[getPokemonId(pokemon.url)]
+            )
             .filter(pokemon => pokemon);
 
         if (requestId !== searchRequestId) {
@@ -412,52 +452,67 @@ async function filterPokemon() {
         }
 
         loadingMessage.style.display = "none";
+
         renderPokemonList(pokemonToDisplay);
+
         return;
     }
 
     let matchingPokemon;
-    
-    // Owned only
-    matchingPokemon = pokemonList.filter(
-    pokemon => {
-        const id =
-            getPokemonId(pokemon.url);
+
+    matchingPokemon = pokemonList.filter(pokemon => {
+        const id = getPokemonId(pokemon.url);
+
         return (
             matchesSearch(pokemon, searchInput) &&
-            matchesOwned(id, showOwnedOnly) && 
+            matchesOwned(id, showOwnedOnly) &&
             matchesFavorite(id, showFavoriteOnly)
         );
     });
-    
+
     const filteredPokemon = [];
 
-    for (const pokemon of matchingPokemon) {
-        const id = getPokemonId(pokemon.url);
+    for (
+        let i = 0;
+        i < matchingPokemon.length;
+        i += PAGE_SIZE
+    ) {
+        const batch = matchingPokemon.slice(
+            i,
+            i + PAGE_SIZE
+        );
 
-        const data = await getPokemonById(id);
+        const batchDetails = await Promise.all(
+            batch.map(pokemon => {
+                const id = getPokemonId(pokemon.url);
 
-        if (!data) {
-            continue;
+                return getPokemonById(id);
+            })
+        );
+
+        batchDetails.forEach(data => {
+            if (!data) {
+                return;
+            }
+
+            if (!matchesType(data, selectedType)) {
+                return;
+            }
+
+            filteredPokemon.push(data);
+        });
+
+        if (requestId !== searchRequestId) {
+            return;
         }
-
-        // If both filters are active
-        if (
-            showOwnedOnly &&
-            searchInput !== "" &&
-            !data.name.includes(searchInput)
-        ) {
-            continue;
-        }
-
-        filteredPokemon.push(data);
     }
 
     if (requestId !== searchRequestId) {
-    return;
+        return;
     }
 
     loadingMessage.style.display = "none";
+
     renderPokemonList(filteredPokemon);
 }
 
@@ -468,30 +523,34 @@ ownedFilter.addEventListener("change", () => {
 });
 
 const favoriteFilter = document.getElementById("favorite-filter");
-
 favoriteFilter.addEventListener("change", () => {
         filterPokemon();
     }
 );
 
 const searchInput = document.getElementById("search-input");
-
 searchInput.addEventListener("input", () => {
     filterPokemon();
 });
 
-const scrollTrigger = document.getElementById("scroll-trigger");
+const typeFilter = document.getElementById("type-filter");
+typeFilter.addEventListener("change", () => {
+    filterPokemon();
+});
 
+const scrollTrigger = document.getElementById("scroll-trigger");
 const observer = new IntersectionObserver(entries => {
     const searchInput = document.getElementById("search-input");
     const ownedFilter = document.getElementById("owned-filter");
     const favoriteFilter = document.getElementById("favorite-filter");
+    const typeFilter = document.getElementById("type-filter");
     
     if (
         entries[0].isIntersecting &&
         searchInput.value === "" &&
         !ownedFilter.checked &&
-        !favoriteFilter.checked
+        !favoriteFilter.checked &&
+        typeFilter.value === ""
     ) {
         loadMorePokemon();
     }
@@ -505,6 +564,7 @@ importFile.addEventListener("change", importCollection);
 const exportButton = document.getElementById("export-button");
 exportButton.addEventListener("click", exportCollection);
 
+populateTypeFilter();
 observer.observe(scrollTrigger);
 updateOwnedCounter();
 getPokemonList();
