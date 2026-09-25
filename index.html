@@ -11,11 +11,13 @@
 <body>
 
     <h1>PokeHome Tracker</h1>
-    <input type="text" id="search-input" placeholder="Search Pokémon by name or ID...">
 
-    <label><input type="checkbox" id="owned-filter"> Show only owned Pokémon</label>
-    <label><input type="checkbox" id="favorite-filter">Show only favorite Pokémon</label>
-    <select id="type-filter"><option value="">All Types</option></select>
+    <div class="filters">
+        <input type="text" id="search-input" placeholder="Search Pokémon by name or ID...">
+        <select id="type-filter"><option value="">All Types</option></select>
+        <label><input type="checkbox" id="owned-filter"> Show only owned Pokémon</label>
+        <label><input type="checkbox" id="favorite-filter">Show only favorite Pokémon</label>
+    </div>
 
     <p id="owned-counter">Owned: 0 / 1025</p>
 
