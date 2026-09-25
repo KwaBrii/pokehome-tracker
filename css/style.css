@@ -1,5 +1,6 @@
 body {
     font-family: Arial, sans-serif;
+    background-color: #9b9b9b;
 }
 
 h1 {
@@ -32,6 +33,34 @@ h1 {
     display: flex;
     align-items: center;
     gap: 4px;
+}
+
+.collection-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+#export-button,
+#import-button,
+#reset-button {
+    padding: 10px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s ease;
+}
+
+#export-button:hover,
+#import-button:hover,
+#reset-button:hover {
+    background: rgba(255, 255, 255, 0.4);
 }
 
 .pokemon-card {
