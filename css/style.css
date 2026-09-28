@@ -2,7 +2,11 @@
     --background-main: #f5f7fa;
     --background-secondary: #dfe9f3;
     --glass-bg: rgba(255, 255, 255, 0.25);
+    --glass-bg-light: rgba(255, 255, 255, 0.2);
+    --glass-bg-hover: rgba(255, 255, 255, 0.4);
     --glass-border: rgba(255, 255, 255, 0.4);
+    --glass-border-light: rgba(255, 255, 255, 0.3);
+    --glass-card-owned: rgba(255, 255, 255, 0.5);
     --glass-blur: blur(10px);
     --text-primary: #222;
     --text-secondary: #555;
@@ -14,7 +18,12 @@ body.dark-theme {
     --background-main: #111827;
     --background-secondary: #1f2937;
     --glass-bg: rgba(17, 24, 39, 0.55);
+    --glass-bg-light: rgba(17, 24, 39, 0.4);
+    --glass-bg-hover: rgba(17, 24, 39, 0.7);
     --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-border-light: rgba(255, 255, 255, 0.08);
+    --glass-card-owned: rgba(41, 49, 47, 0.6);
+    --glass-blur: blur(10px);
     --text-primary: #f3f4f6;
     --text-secondary: #d1d5db;
     --progress-start: #21be9c;
@@ -101,9 +110,9 @@ body {
     gap: 4px;
     padding: 8px 12px;
     border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.2);
-    
+    border: 1px solid var(--glass-border-light);
+    background: var(--glass-bg-light);
+    color: var(--text-primary);
 }
 
 .filters input[type="checkbox"] {
@@ -135,7 +144,7 @@ body {
 #import-button:hover,
 #reset-button:hover,
 #theme-toggle:hover {
-    background: var(--glass-border);
+    background: var(--glass-bg-hover);
 }
 
 .pokemon-card {
@@ -160,7 +169,7 @@ body {
 
 .pokemon-card:hover {
     transform: translateY(-4px);
-    background: var(--glass-border);
+    background: var(--glass-bg-hover);
 }
 
 #pokemon-container {
@@ -181,7 +190,7 @@ body {
 }
 
 .pokemon-card.owned {
-    background: rgba(255, 255, 255, 0.5);
+    background: var(--glass-card-owned);
     border-color: rgba(76, 175, 80, 0.5);
 }
 
