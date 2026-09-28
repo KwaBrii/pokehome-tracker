@@ -414,6 +414,30 @@ function matchesType(pokemon, selectedType) {
     return pokemon.types.some(type => type.type.name === selectedType);
 }
 
+function sortPokemon(pokemonArray, sortType) {
+    const sortedPokemon = [...pokemonArray];
+
+    if (sortType === "az") {
+        sortedPokemon.sort((a, b) =>
+            a.name.localeCompare(b.name)
+        );
+    }
+
+    if (sortType === "za") {
+        sortedPokemon.sort((a, b) =>
+            b.name.localeCompare(a.name)
+        );
+    }
+
+    if (sortType === "national") {
+        sortedPokemon.sort((a, b) =>
+            a.id - b.id
+        );
+    }
+
+    return sortedPokemon;
+}
+
 async function filterPokemon() {
     const requestId = ++searchRequestId;
 
@@ -428,6 +452,9 @@ async function filterPokemon() {
 
     const selectedType =
         document.getElementById("type-filter").value;
+
+    const sortType =
+        document.getElementById("sort-filter").value;
 
     const loadingMessage =
         document.getElementById("loading-message");
@@ -447,7 +474,8 @@ async function filterPokemon() {
         searchInput === "" &&
         !showOwnedOnly &&
         !showFavoriteOnly &&
-        selectedType === ""
+        selectedType === "" &&
+        sortType === "national"
     ) {
         displayedPokemon = 50;
 
@@ -522,10 +550,11 @@ async function filterPokemon() {
     if (requestId !== searchRequestId) {
         return;
     }
-
+    
+    const sortedPokemon = sortPokemon(filteredPokemon, sortType);
+    
     loadingMessage.style.display = "none";
-
-    renderPokemonList(filteredPokemon);
+    renderPokemonList(sortedPokemon);
 }
 
 const ownedFilter = document.getElementById("owned-filter");
@@ -550,19 +579,26 @@ typeFilter.addEventListener("change", () => {
     filterPokemon();
 });
 
+const sortFilter = document.getElementById("sort-filter");
+sortFilter.addEventListener("change", () => {
+    filterPokemon();
+});
+
 const scrollTrigger = document.getElementById("scroll-trigger");
 const observer = new IntersectionObserver(entries => {
     const searchInput = document.getElementById("search-input");
     const ownedFilter = document.getElementById("owned-filter");
     const favoriteFilter = document.getElementById("favorite-filter");
     const typeFilter = document.getElementById("type-filter");
+    const sortFilter = document.getElementById("sort-filter");
     
     if (
         entries[0].isIntersecting &&
         searchInput.value === "" &&
         !ownedFilter.checked &&
         !favoriteFilter.checked &&
-        typeFilter.value === ""
+        typeFilter.value === "" &&
+        sortFilter.value === "national"
     ) {
         loadMorePokemon();
     }

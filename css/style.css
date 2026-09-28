@@ -35,6 +35,7 @@ body.dark-theme {
 .pokemon-card,
 #search-input,
 #type-filter,
+#sort-filter,
 #export-button,
 #import-button,
 #reset-button,
@@ -90,7 +91,8 @@ body {
 }
 
 #search-input,
-#type-filter {
+#type-filter,
+#sort-filter {
     padding: 10px 14px;
     font-size: 14px;
     border-radius: 10px;
@@ -98,7 +100,8 @@ body {
 }
 
 #search-input:focus,
-#type-filter:focus {
+#type-filter:focus,
+#sort-filter:focus {
     outline: none;
     border-color: var(--accent-color-light);
     box-shadow: 0 0 0 3px rgba(33, 190, 156, 0.15);
