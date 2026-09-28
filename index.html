@@ -19,18 +19,20 @@
             <div id="progress-fill"></div>
         </div>
     </header>
-    
-    <div class="filters">
-        <input type="text" id="search-input" placeholder="Search Pokémon by name or ID...">
-        <select id="type-filter"><option value="">All Types</option></select>
-        <label><input type="checkbox" id="owned-filter"> Show only owned Pokémon</label>
-        <label><input type="checkbox" id="favorite-filter">Show only favorite Pokémon</label>
-    </div>
+    <section class="filters-panel">
+        <div class="filters">
+            <input type="text" id="search-input" placeholder="Search Pokémon by name or ID...">
+            <select id="type-filter"><option value="">All Types</option></select>
+            <label><input type="checkbox" id="owned-filter"> Show only owned Pokémon</label>
+            <label><input type="checkbox" id="favorite-filter">Show only favorite Pokémon</label>
+        </div>
+    </section>
 
     <div class="collection-actions">
         <button id="export-button">Export Collection</button>
         <button id="import-button">Import Collection</button>
         <button id="reset-button">Reset Collection</button>
+        <button id="theme-toggle">🌙 Dark Mode </button>
     </div>
 
     <input type="file" id="import-file" accept=".json" style="display: none;">

@@ -576,6 +576,11 @@ importFile.addEventListener("change", importCollection);
 const exportButton = document.getElementById("export-button");
 exportButton.addEventListener("click", exportCollection);
 
+const themeToggle = document.getElementById("theme-toggle");
+themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark-theme");
+})
+
 populateTypeFilter();
 observer.observe(scrollTrigger);
 updateOwnedCounter();
