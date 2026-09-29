@@ -182,7 +182,8 @@ importButton.addEventListener(
 );
 
 function exportCollection() {
-    const data = JSON.stringify(ownedPokemon, null, 2);
+    const exportData = {ownedPokemon, favoritePokemon};
+    const data = JSON.stringify(exportData, null, 2);
     const blob = new Blob([data], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -209,10 +210,26 @@ function importCollection(event) {
                 delete ownedPokemon[key];
             });
 
-            Object.assign(ownedPokemon, importedData);
+            Object.keys(favoritePokemon).forEach(key => {
+                delete favoritePokemon[key];
+            });
+
+            if (importedData.ownedPokemon) {
+                // Novo formato
+                Object.assign(ownedPokemon, importedData.ownedPokemon);
+                Object.assign(favoritePokemon, importedData.favoritePokemon || {});
+
+            } else {
+                // Formato antigo
+                Object.assign(ownedPokemon,importedData);
+
+        }
+            
             saveOwnedPokemon(ownedPokemon);
+            saveFavoritePokemon(favoritePokemon);
             updateOwnedCounter();
             filterPokemon();
+
         } catch {
             alert(
                 "Invalid JSON file. Please ensure the file is a valid JSON representation of your owned Pokémon collection."
